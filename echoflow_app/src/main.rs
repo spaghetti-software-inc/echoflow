@@ -600,7 +600,7 @@ impl eframe::App for PipelineApp {
 fn main() {
     let native_options = eframe::NativeOptions::default();
     eframe::run_native(
-        "Pipeline Flowchart UI with Global Controls",
+        "Echoflow v0.0.1",
         native_options,
         Box::new(|_cc| Box::new(PipelineApp::default())),
     );
