@@ -243,13 +243,32 @@ mod flowchart {
                 }
             }
 
-            // Draw established connections:
+            // Draw established connections with arrowheads:
             for conn in &self.connections {
                 if let (Some(&from_rect), Some(&to_rect)) =
                     (node_rects.get(&conn.from), node_rects.get(&conn.to))
                 {
+                    let from_pos = from_rect.center();
+                    let to_pos = to_rect.center();
                     ui.painter().line_segment(
-                        [from_rect.center(), to_rect.center()],
+                        [from_pos, to_pos],
+                        egui::Stroke::new(2.0, egui::Color32::LIGHT_GREEN),
+                    );
+
+                    // Draw arrowhead
+                    let arrow_size = 10.0 * self.zoom;
+                    let direction = (to_pos - from_pos).normalized();
+                    let perpendicular = egui::Vec2::new(-direction.y, direction.x);
+                    let arrow_tip = to_pos - direction * (node_size.x / 2.0); // Adjust the arrow tip position
+                    let arrow_left = arrow_tip - direction * arrow_size + perpendicular * arrow_size * 0.5;
+                    let arrow_right = arrow_tip - direction * arrow_size - perpendicular * arrow_size * 0.5;
+
+                    ui.painter().line_segment(
+                        [arrow_tip, arrow_left],
+                        egui::Stroke::new(2.0, egui::Color32::LIGHT_GREEN),
+                    );
+                    ui.painter().line_segment(
+                        [arrow_tip, arrow_right],
                         egui::Stroke::new(2.0, egui::Color32::LIGHT_GREEN),
                     );
                 }
@@ -531,7 +550,7 @@ impl eframe::App for PipelineApp {
             self.execute_command(FlowChartCommand::PanDown);
         }
         // Note: Depending on your keyboard/layout, you might need to adjust these key choices.
-        if ctx.input(|i| i.key_pressed(egui::Key::Plus)) {
+        if ctx.input(|i| i.key_pressed(egui::Key::Equals)) {
             self.execute_command(FlowChartCommand::ZoomIn);
         }
         if ctx.input(|i| i.key_pressed(egui::Key::Minus)) {
